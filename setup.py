@@ -49,7 +49,7 @@ setup(
             "pytest-mock==3.*",
             "pytest-ruff==0.*",
             "pytest-watch==4.*",
-            "pytest>=7,<9",
+            "pytest>=7,<10",
             "ruff==0.*",
             "functions-framework==3.8.*",
         ]
