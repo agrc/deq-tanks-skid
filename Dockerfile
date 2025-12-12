@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED=True
@@ -14,4 +14,4 @@ WORKDIR /app
 RUN pip install .
 
 USER dummy
-ENTRYPOINT ["skidname-skid"]
+ENTRYPOINT ["deq-tanks-skid"]

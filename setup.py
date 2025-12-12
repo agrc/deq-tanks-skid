@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 """
 setup.py
-A module that installs the SKIDNAME skid as a module
+A module that installs the deq tanks skid as a module
 """
 
 from pathlib import Path
@@ -11,18 +11,18 @@ from setuptools import find_packages, setup
 
 #: Load version from source file
 version = {}
-version_file = Path(__file__).parent / "src" / "skidname" / "version.py"
+version_file = Path(__file__).parent / "src" / "deq_tanks" / "version.py"
 exec(version_file.read_text(), version)
 
 setup(
-    name="skidname",
+    name="deq_tanks",
     version=version["__version__"],
     license="MIT",
     long_description=(Path(__file__).parent / "README.md").read_text(),
     long_description_content_type="text/markdown",
     author="UGRC",
     author_email="ugrc-developers@utah.gov",
-    url="https://github.com/agrc/skid",
+    url="https://github.com/agrc/deq-tanks-skid",
     packages=find_packages("src"),
     package_dir={"": "src"},
     include_package_data=True,
@@ -35,23 +35,22 @@ setup(
         "Topic :: Utilities",
     ],
     project_urls={
-        "Issue Tracker": "https://github.com/agrc/skid/issues",
+        "Issue Tracker": "https://github.com/agrc/deq-tanks-skid/issues",
     },
     keywords=["gis"],
     install_requires=[
-        "ugrc-palletjack>=5.0,<5.3",
-        "ugrc-supervisor>=3.1.3",
+        "agrc-supervisor==3.*",
+        "ugrc-palletjack==5.*",
     ],
     extras_require={
         "tests": [
-            "pytest-cov>=6",
+            "pytest-cov>=3,<8",
             "pytest-instafail==0.5.*",
             "pytest-mock==3.*",
             "pytest-ruff==0.*",
             "pytest-watch==4.*",
-            "pytest>=7,<9",
+            "pytest>=6,<9",
             "ruff==0.*",
-            "functions-framework==3.8.*",
         ]
     },
     setup_requires=[
@@ -59,7 +58,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "skidname = skidname.main:function",
+            "deq-tanks-skid = deq_tanks.main:process",
         ]
     },
 )
