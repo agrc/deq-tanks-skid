@@ -26,9 +26,7 @@ def flatten(x, child_field):
         raise ValueError(f"Expected a dictionary, got {type(x)}")
 
     if child_field not in x:
-        raise ValueError(
-            f"Expected a child field '{child_field}', but not found in the dictionary"
-        )
+        raise ValueError(f"Expected a child field '{child_field}', but not found in the dictionary")
 
     return x[child_field]
 
@@ -72,11 +70,7 @@ class SalesForceRecords:
 
         self.df.drop(columns=["attributes"], inplace=True)
 
-        field_mappings = {
-            c.sf_field: c.agol_field
-            for c in self.field_configs
-            if c.sf_field is not None
-        }
+        field_mappings = {c.sf_field: c.agol_field for c in self.field_configs if c.sf_field is not None}
         self.df.rename(mapper=field_mappings, axis=1, inplace=True)
 
         fields_to_drop = []
@@ -85,20 +79,14 @@ class SalesForceRecords:
                 parts = field_config.sf_field.split(".")
                 parent_field = parts[0]
                 child_field = parts[1]
-                self.df[field_config.agol_field] = self.df[parent_field].apply(
-                    lambda x: flatten(x, child_field)
-                )
+                self.df[field_config.agol_field] = self.df[parent_field].apply(lambda x: flatten(x, child_field))
                 fields_to_drop.append(parent_field)
             if field_config.field_type == config.FieldConfig.static:
                 self.df[field_config.agol_field] = field_config.static_value
             elif field_config.field_type == config.FieldConfig.integer:
-                self.df[field_config.agol_field] = self.df[
-                    field_config.agol_field
-                ].apply(convert_to_int)
+                self.df[field_config.agol_field] = self.df[field_config.agol_field].apply(convert_to_int)
             elif field_config.field_type == config.FieldConfig.text:
-                self.df[field_config.agol_field] = self.df[
-                    field_config.agol_field
-                ].apply(str)
+                self.df[field_config.agol_field] = self.df[field_config.agol_field].apply(str)
             elif field_config.field_type == config.FieldConfig.composite:
                 self.df[field_config.agol_field] = self.df.apply(
                     lambda x: field_config.composite_format.format(**dict(x)), axis=1
@@ -111,21 +99,13 @@ class SalesForceRecords:
         #: ints
         self.df = palletjack.transform.DataCleaning.switch_to_nullable_int(
             self.df,
-            [
-                c.agol_field
-                for c in self.field_configs
-                if c.field_type == config.FieldConfig.integer
-            ],
+            [c.agol_field for c in self.field_configs if c.field_type == config.FieldConfig.integer],
         )
 
         #: floats
         self.df = palletjack.transform.DataCleaning.switch_to_float(
             self.df,
-            [
-                c.agol_field
-                for c in self.field_configs
-                if c.field_type == config.FieldConfig.float
-            ],
+            [c.agol_field for c in self.field_configs if c.field_type == config.FieldConfig.float],
         )
 
         #: dates
@@ -134,15 +114,16 @@ class SalesForceRecords:
             [c.agol_field for c in self.field_configs if c.field_type == c.date],
         )
 
+        #: reorder columns to match field_configs
+        self.df = self.df[[c.agol_field for c in self.field_configs]]
+
     def _build_columns_string(self) -> str:
         """Build a string of needed columns for the SOQL query based on field mapping and some custom fields
 
         Returns:
             str: A comma-delimited string of needed columns for the SOQL query
         """
-        fields = list(
-            [c.sf_field for c in self.field_configs if c.sf_field is not None]
-        )
+        fields = list([c.sf_field for c in self.field_configs if c.sf_field is not None])
         fields_string = ",".join(fields)
 
         return fields_string
