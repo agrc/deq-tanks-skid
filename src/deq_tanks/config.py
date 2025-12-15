@@ -92,21 +92,21 @@ FACILITIES_FIELDS = (
     FieldConfig("EASTING", "UTMEasting", "UTM Easting", "integer"),
     FieldConfig("TANK", "Tank", "Tank", "text"),
     FieldConfig("SITEDESC", "SiteDesc", "Site Description", "text"),
-    FieldConfig("RELEASE", "Release", "", "text"),  #: TODO alias
-    FieldConfig("REGAST", "REGAST", "", "text"),  #: TODO alias
+    FieldConfig("RELEASE", "Release", "Has a Release", "text"),
+    FieldConfig("REGAST", "REGAST", "Has State Regulated AST(s)", "text"),
     FieldConfig("LOCSTR", "PhysicalAddressStreet", "Location Address", "text"),
     FieldConfig("LOCSTATE", "PhysicalAddressStateCode", "Location State", "text"),
     FieldConfig("LOCZIP", "PhysicalAddressPostalCode", "Location Zip", "text"),
     FieldConfig("LOCCITY", "PhysicalAddressCity", "Location City", "text"),
     FieldConfig("LOCCOUNTY", "FLCounty", "Location County", "text"),
-    FieldConfig("OPENTANK", "OpenTank", "", "text"),  #: TODO alias
-    FieldConfig("OPENRELEASE", "OpenRelease", "", "text"),  #: TODO alias
-    FieldConfig("OPENREGAST", "OpenREGAST", "", "text"),  #: TODO alias
+    FieldConfig("OPENTANK", "OpenTank", "Has an Open Tank", "text"),
+    FieldConfig("OPENRELEASE", "OpenRelease", "Has an Open Release", "text"),
+    FieldConfig("OPENREGAST", "OpenREGAST", "Has an Open Regulated AST", "text"),
     FieldConfig("MAPLABEL", "MapLabel", "Map Label", "text"),
     FieldConfig("HEALTHDIST", "HealthDistrict", "Health District", "text"),
     FieldConfig("LOCNAME", "FacilityName", "Location Name", "text"),
     FieldConfig("FACILITYDE", "FacilityDescription", "Type of Facility", "text"),
-    FieldConfig("DERRID", "AltFacilityID", "", "text"),  #: TODO alias
+    FieldConfig("DERRID", "AltFacilityID", "Alt Facility ID", "text"),
     FieldConfig("OWNERADDRESS", "AccountShippingStreet", "Owner Address", "text"),
     FieldConfig("OWNERSTATE", "AccountShippingState", "Owner State", "text"),
     FieldConfig("OWNERZIP", "AccountShippingPostalCode", "Owner Postal Code", "text"),
@@ -148,7 +148,7 @@ TANKS_QUERY = "Tank_Type__c = 'Federally Regulated UST' OR Tank_Type__c = 'State
 TANKS_FIELDS = (
     #: AGOL field name, Salesforce field name, AGOL Alias, type
     FieldConfig("FACILITYID", "Facility__c", "Facility ID", "text"),
-    FieldConfig("TANKID", "Name", "Tank Number", "integer"),
+    FieldConfig("TANKID", "?TankNumber__c?", "Tank Number", "text"),
     FieldConfig("ALTTANKID", "Alt_Tank_Id__c", "Tank ID", "text"),
     FieldConfig("TANKTYPE", "Tank_Type__c", "Tank Type", "text"),
     FieldConfig("TANKEMERGE", "Emergency_Gen__c", "Emergency Generator", "text"),
