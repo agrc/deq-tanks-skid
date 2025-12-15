@@ -120,7 +120,7 @@ RELEASES_TITLE = "PST Facility Releases"
 RELEASES_QUERY = "LPST_List_Override__c = FALSE"
 RELEASES_FIELDS = (
     #: AGOL field name, Salesforce field name, AGOL Alias, type
-    FieldConfig("LUSTKEY", "Id", "Salesforce ID", "text"),
+    FieldConfig("FACILITYID", "Alt_Facility_Id__c", "Facility ID", "text"),
     FieldConfig("DERRID", "Release_Id__c", "DERR ID", "text"),
     FieldConfig("PROJECTMAN", "Project_Manager__r.Name", "Project Manager", "text", flatten=True),
     FieldConfig("NOTIFICATI", "Notification_Date__c", "Notification Date", "date"),
@@ -132,7 +132,6 @@ RELEASES_FIELDS = (
     FieldConfig("PSTFUNDSTA", "PST_Eligibility__c", "PST Eligibility", "text"),
     FieldConfig("PSTFUNDPER", "EAP_Coverage_Percentage__c", "EAP Coverage %", "integer"),
     FieldConfig("DEDUCTIBLE", "EAP_Deductible_Amount__c", "EAP Deductible", "float"),
-    FieldConfig("FACILITYID", "Facility__c", "Facility ID", "text"),
     FieldConfig("NFAFORM", "NFA_Form__c", "NFA Form", "text"),
     FieldConfig("MAPLABEL", "MapLabel__c", "Map Label", "text"),
     FieldConfig("BLUESTAKES", "Blue_Stakes__c", "Blue Stakes", "text"),
@@ -147,8 +146,8 @@ TANKS_TITLE = "PST Facility Tanks"
 TANKS_QUERY = "Tank_Type__c = 'Federally Regulated UST' OR Tank_Type__c = 'State Regulated AST' OR Cert_of_Compliance_in_Force__c = TRUE"
 TANKS_FIELDS = (
     #: AGOL field name, Salesforce field name, AGOL Alias, type
-    FieldConfig("FACILITYID", "Facility__c", "Facility ID", "text"),
-    FieldConfig("TANKID", "?TankNumber__c?", "Tank Number", "text"),
+    FieldConfig("FACILITYID", "Alt_Facility_ID__c", "Facility ID", "text"),
+    FieldConfig("TANKID", "Name", "Tank Number", "text"),
     FieldConfig("ALTTANKID", "Alt_Tank_Id__c", "Tank ID", "text"),
     FieldConfig("TANKTYPE", "Tank_Type__c", "Tank Type", "text"),
     FieldConfig("TANKEMERGE", "Emergency_Gen__c", "Emergency Generator", "text"),
@@ -169,8 +168,8 @@ COMPARTMENTS_TITLE = "PST Facility Compartments"
 COMPARTMENTS_QUERY = "Compartment_Type__c  = 'Federally Regulated UST' OR Compartment_Type__c = 'State Regulated AST' OR Cert_of_Compliance_in_Force__c = TRUE"
 COMPARTMENTS_FIELDS = (
     #: AGOL field name, Salesforce field name, AGOL Alias, type
-    FieldConfig("FACILITYID", "Tank__r.Facility__c", "Facility ID", "text", flatten=True),
-    FieldConfig("TANKID", "Name", "Tank ID", "text"),
+    FieldConfig("FACILITYID", "Alt_Facility_Id__c", "Facility ID", "text"),
+    FieldConfig("TANKID", "Tank__r.Name", "Tank ID", "text", flatten=True),
     FieldConfig("ALTCOMPARTID", "Alt_Compartment_Id__c", "Compartment ID", "text"),
     FieldConfig("COMPTYPE", "Compartment_Type__c", "Compartment Type", "text"),
     FieldConfig("TANKEMERGE", "Emergency_Gen__c", "Emergency Generator", "text"),
