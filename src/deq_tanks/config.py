@@ -78,7 +78,7 @@ class FieldConfig:
             raise ValueError(f"Field type '{field_type}' cannot have a 'composite_format'")
         self.composite_format = composite_format
 
-        if flatten and "." not in sf_field:
+        if flatten and (sf_field is None or "." not in sf_field):
             raise ValueError(f"Field '{sf_field}' cannot be flattened without a dot")
 
 
@@ -165,7 +165,7 @@ TANKS_FIELDS = (
 COMPARTMENTS_API = "Compartment__c"
 COMPARTMENTS_TABLE_NAME = "pst_facility_compartments"
 COMPARTMENTS_TITLE = "Utah Petroleum Storage Tank Compartments"
-COMPARTMENTS_QUERY = "Compartment_Type__c  = 'Federally Regulated UST' OR Compartment_Type__c = 'State Regulated AST' OR Cert_of_Compliance_in_Force__c = TRUE"
+COMPARTMENTS_QUERY = "Compartment_Type__c = 'Federally Regulated UST' OR Compartment_Type__c = 'State Regulated AST' OR Cert_of_Compliance_in_Force__c = TRUE"
 COMPARTMENTS_FIELDS = (
     #: AGOL field name, Salesforce field name, AGOL Alias, type
     FieldConfig("FACILITYID", "Alt_Facility_Id__c", "Facility ID", "text"),

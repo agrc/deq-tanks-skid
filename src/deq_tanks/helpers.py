@@ -8,14 +8,14 @@ logger = logging.getLogger(config.SKID_NAME)
 
 
 def convert_to_int(s):
-    """Convert a string to an integer. If the string cannot be converted, return -1."""
+    """Convert a string to an integer. If the string cannot be converted, return None."""
     if s is None:
         return None
 
     try:
         return int(s)
     except ValueError:
-        return -1
+        return None
 
 
 def flatten(x, child_field):
@@ -37,14 +37,14 @@ def apply_field_mappings_and_transformations(dataframe, field_configs):
     field_mappings = {c.sf_field: c.agol_field for c in field_configs if c.sf_field is not None}
     dataframe.rename(mapper=field_mappings, axis=1, inplace=True)
 
-    fields_to_drop = []
+    fields_to_drop = set()
     for field_config in field_configs:
         if field_config.flatten:
             parts = field_config.sf_field.split(".")
             parent_field = parts[0]
             child_field = parts[1]
             dataframe[field_config.agol_field] = dataframe[parent_field].apply(lambda x: flatten(x, child_field))
-            fields_to_drop.append(parent_field)
+            fields_to_drop.add(parent_field)
         elif field_config.field_type == config.FieldConfig.static:
             dataframe[field_config.agol_field] = field_config.static_value
         elif field_config.field_type == config.FieldConfig.integer:
@@ -86,9 +86,6 @@ def apply_field_mappings_and_transformations(dataframe, field_configs):
 
 class SalesForceRecords:
     """A helper class that extracts data from Salesforce for a specific table/api."""
-
-    table = "table"
-    feature_layer = "feature_layer"
 
     def __init__(
         self,
