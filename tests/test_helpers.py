@@ -69,12 +69,8 @@ class TestApplyFieldMappingsAndTransformations:
         """Test that basic field mapping renames columns correctly"""
         df = pd.DataFrame({"sf_field1": ["a", "b"], "sf_field2": [1, 2]})
         field_configs = [
-            config.FieldConfig(
-                "agol_field1", "sf_field1", "Alias1", config.FieldConfig.text
-            ),
-            config.FieldConfig(
-                "agol_field2", "sf_field2", "Alias2", config.FieldConfig.integer
-            ),
+            config.FieldConfig("agol_field1", "sf_field1", "Alias1", config.FieldConfig.text),
+            config.FieldConfig("agol_field2", "sf_field2", "Alias2", config.FieldConfig.integer),
         ]
 
         result = helpers.apply_field_mappings_and_transformations(df, field_configs)
@@ -100,9 +96,7 @@ class TestApplyFieldMappingsAndTransformations:
                 config.FieldConfig.text,
                 flatten=True,
             ),
-            config.FieldConfig(
-                "other_field", "OtherField", "Other", config.FieldConfig.text
-            ),
+            config.FieldConfig("other_field", "OtherField", "Other", config.FieldConfig.text),
         ]
 
         result = helpers.apply_field_mappings_and_transformations(df, field_configs)
@@ -115,9 +109,7 @@ class TestApplyFieldMappingsAndTransformations:
         """Test that static fields are added with correct values"""
         df = pd.DataFrame({"sf_field": ["a", "b"]})
         field_configs = [
-            config.FieldConfig(
-                "agol_field", "sf_field", "Field", config.FieldConfig.text
-            ),
+            config.FieldConfig("agol_field", "sf_field", "Field", config.FieldConfig.text),
             config.FieldConfig(
                 "static_field",
                 None,
@@ -136,9 +128,7 @@ class TestApplyFieldMappingsAndTransformations:
         """Test that integer fields are properly converted"""
         df = pd.DataFrame({"num_field": ["123", "456", "invalid"]})
         field_configs = [
-            config.FieldConfig(
-                "number", "num_field", "Number", config.FieldConfig.integer
-            ),
+            config.FieldConfig("number", "num_field", "Number", config.FieldConfig.integer),
         ]
 
         result = helpers.apply_field_mappings_and_transformations(df, field_configs)
@@ -185,9 +175,7 @@ class TestApplyFieldMappingsAndTransformations:
         """Test that text fields are converted to strings"""
         df = pd.DataFrame({"mixed_field": [123, "text", None]})
         field_configs = [
-            config.FieldConfig(
-                "text_field", "mixed_field", "Text", config.FieldConfig.text
-            ),
+            config.FieldConfig("text_field", "mixed_field", "Text", config.FieldConfig.text),
         ]
 
         result = helpers.apply_field_mappings_and_transformations(df, field_configs)
@@ -195,3 +183,62 @@ class TestApplyFieldMappingsAndTransformations:
         assert result["text_field"][0] == "123"
         assert result["text_field"][1] == "text"
         assert result["text_field"][2] == "None"
+
+
+class TestSalesForceRecords:
+    """Unit tests for the SalesForceRecords class"""
+
+    def test_build_columns_string_joins_fields(self):
+        """Test that _build_columns_string correctly joins sf_field names and ignores None values"""
+        field_configs = [
+            config.FieldConfig("agol1", "sf_field1", "Alias1", config.FieldConfig.text),
+            config.FieldConfig("agol2", "sf_field2", "Alias2", config.FieldConfig.text),
+            config.FieldConfig("static", None, "Static", config.FieldConfig.static, static_value="val"),
+        ]
+        sf_records = helpers.SalesForceRecords(None, "Table__c", field_configs, None)
+
+        result = sf_records._build_columns_string()
+
+        assert result == "sf_field1,sf_field2"
+
+    def test_extract_data_from_salesforce_calls_loader_and_processes(self, mocker):
+        """Test that extract_data_from_salesforce queries Salesforce and cleans the result"""
+        mock_loader = mocker.Mock()
+        # Mock the dataframe returned by Salesforce
+        input_df = pd.DataFrame({"sf_field1": ["value1"], "attributes": [{"type": "Table__c"}]})
+        mock_loader.get_records.return_value = input_df
+
+        field_configs = [
+            config.FieldConfig("agol_field1", "sf_field1", "Alias1", config.FieldConfig.text),
+        ]
+
+        # Mock apply_field_mappings_and_transformations to isolate the test
+        mock_apply = mocker.patch("deq_tanks.helpers.apply_field_mappings_and_transformations")
+        processed_df = pd.DataFrame({"agol_field1": ["value1"]})
+        mock_apply.return_value = processed_df
+
+        sf_records = helpers.SalesForceRecords(mock_loader, "Table__c", field_configs, "Field='Value'")
+        sf_records.extract_data_from_salesforce()
+
+        # Verify query construction
+        expected_query = "SELECT sf_field1 from Table__c WHERE Field='Value'"
+        mock_loader.get_records.assert_called_once_with("services/data/v60.0/query/", expected_query)
+
+        # Verify attributes column was dropped and transformation was applied
+        assert "attributes" not in sf_records.df.columns
+        assert sf_records.df.equals(processed_df)
+        mock_apply.assert_called_once()
+
+    def test_extract_data_from_salesforce_no_where_clause(self, mocker):
+        """Test query construction when no where clause is provided"""
+        mock_loader = mocker.Mock()
+        mock_loader.get_records.return_value = pd.DataFrame({"sf": [1], "attributes": [2]})
+        mocker.patch("deq_tanks.helpers.apply_field_mappings_and_transformations", side_effect=lambda df, configs: df)
+
+        field_configs = [config.FieldConfig("agol", "sf", "Alias", config.FieldConfig.text)]
+        sf_records = helpers.SalesForceRecords(mock_loader, "Table__c", field_configs, None)
+
+        sf_records.extract_data_from_salesforce()
+
+        expected_query = "SELECT sf from Table__c"
+        mock_loader.get_records.assert_called_once_with("services/data/v60.0/query/", expected_query)

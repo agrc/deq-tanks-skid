@@ -75,7 +75,7 @@ def apply_field_mappings_and_transformations(dataframe, field_configs):
     #: dates
     dataframe = palletjack.transform.DataCleaning.switch_to_datetime(
         dataframe,
-        [c.agol_field for c in field_configs if c.field_type == c.date],
+        [c.agol_field for c in field_configs if c.field_type == config.FieldConfig.date],
     )
 
     #: reorder columns to match field_configs
@@ -115,7 +115,7 @@ class SalesForceRecords:
             query += f" WHERE {self.where_clause}"
 
         #: Main query with just our desired fields
-        print(f"Querying Salesforce: {query}")
+        logger.info(f"Querying Salesforce: {query}")
         self.df = self.salesforce_extractor.get_records(
             "services/data/v60.0/query/",
             query,
@@ -131,7 +131,7 @@ class SalesForceRecords:
         Returns:
             str: A comma-delimited string of needed columns for the SOQL query
         """
-        fields = list([c.sf_field for c in self.field_configs if c.sf_field is not None])
+        fields = [c.sf_field for c in self.field_configs if c.sf_field is not None]
         fields_string = ",".join(fields)
 
         return fields_string
