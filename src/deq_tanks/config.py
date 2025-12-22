@@ -69,13 +69,13 @@ class FieldConfig:
         if field_type == self.static and static_value is None:
             raise ValueError("Field type 'static' must have a 'static_value'")
         elif field_type != self.static and static_value is not None:
-            raise ValueError("Field type '{field_type}' cannot have a 'static_value'")
+            raise ValueError(f"Field type '{field_type}' cannot have a 'static_value'")
         self.static_value = static_value
 
         if field_type == self.composite and composite_format is None:
             raise ValueError("Field type 'composite' must have a 'composite_format'")
         elif field_type != self.composite and composite_format is not None:
-            raise ValueError("Field type '{field_type}' cannot have a 'composite_format'")
+            raise ValueError(f"Field type '{field_type}' cannot have a 'composite_format'")
         self.composite_format = composite_format
 
         if flatten and "." not in sf_field:
