@@ -84,7 +84,7 @@ class FieldConfig:
 
 FACILITIES_API = "services/apexrest/facilities"
 FACILITIES_TABLE_NAME = "pst_facilities"
-FACILITIES_TITLE = "Petroleum Storage Tanks Facilities"
+FACILITIES_TITLE = "Utah Petroleum Storage Tanks Facilities"
 FACILITIES_FIELDS = (
     #: AGOL field name, Salesforce field name, AGOL Alias, type
     FieldConfig("FACILITYID", "Id", "Facility ID", "text"),
@@ -116,7 +116,7 @@ FACILITIES_FIELDS = (
 
 RELEASES_API = "Release__c"
 RELEASES_TABLE_NAME = "pst_facility_releases"
-RELEASES_TITLE = "PST Facility Releases"
+RELEASES_TITLE = "Utah Petroleum Storage Tank Releases"
 RELEASES_QUERY = "LPST_List_Override__c = FALSE"
 RELEASES_FIELDS = (
     #: AGOL field name, Salesforce field name, AGOL Alias, type
@@ -131,7 +131,7 @@ RELEASES_FIELDS = (
     FieldConfig("GWFLOWDIR2", "Groundwater_Flow_Direction_2__c", "GW Flow Dir 2", "text"),
     FieldConfig("PSTFUNDSTA", "PST_Eligibility__c", "PST Eligibility", "text"),
     FieldConfig("PSTFUNDPER", "EAP_Coverage_Percentage__c", "EAP Coverage %", "integer"),
-    FieldConfig("DEDUCTIBLE", "EAP_Deductible_Amount__c", "EAP Deductible", "float"),
+    FieldConfig("DEDUCTIBLE", "EAP_Deductible_Amount__c", "EAP Deductible", "integer"),
     FieldConfig("NFAFORM", "NFA_Form__c", "NFA Form", "text"),
     FieldConfig("MAPLABEL", "MapLabel__c", "Map Label", "text"),
     FieldConfig("BLUESTAKES", "Blue_Stakes__c", "Blue Stakes", "text"),
@@ -142,7 +142,7 @@ RELEASES_FIELDS = (
 
 TANKS_API = "Tank__c"
 TANKS_TABLE_NAME = "pst_facility_tanks"
-TANKS_TITLE = "PST Facility Tanks"
+TANKS_TITLE = "Utah Petroleum Storage Tanks"
 TANKS_QUERY = "Tank_Type__c = 'Federally Regulated UST' OR Tank_Type__c = 'State Regulated AST' OR Cert_of_Compliance_in_Force__c = TRUE"
 TANKS_FIELDS = (
     #: AGOL field name, Salesforce field name, AGOL Alias, type
@@ -164,7 +164,7 @@ TANKS_FIELDS = (
 
 COMPARTMENTS_API = "Compartment__c"
 COMPARTMENTS_TABLE_NAME = "pst_facility_compartments"
-COMPARTMENTS_TITLE = "PST Facility Compartments"
+COMPARTMENTS_TITLE = "Utah Petroleum Storage Tank Compartments"
 COMPARTMENTS_QUERY = "Compartment_Type__c  = 'Federally Regulated UST' OR Compartment_Type__c = 'State Regulated AST' OR Cert_of_Compliance_in_Force__c = TRUE"
 COMPARTMENTS_FIELDS = (
     #: AGOL field name, Salesforce field name, AGOL Alias, type
