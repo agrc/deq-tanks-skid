@@ -91,8 +91,8 @@ class SalesForceRecords:
         self,
         salesforce_extractor: palletjack.extract.SalesforceRestLoader,
         salesforce_api: str,
-        field_configs,
-        where_clause,
+        field_configs: list[config.FieldConfig],
+        where_clause: str | None,
     ):
         self.salesforce_extractor = salesforce_extractor
         self.salesforce_api = salesforce_api
