@@ -149,7 +149,17 @@ class Skid:
     def _get_facilities(self) -> GeoAccessor:
         self.skid_logger.info("loading tank facility records from Salesforce...")
 
-        dataframe = self.salesforce_extractor.get_records(config.FACILITIES_API, "")
+        dataframe = self.salesforce_extractor.get_records(
+            "services/apexrest/facilities",
+            "",
+        )
+        dataframe = helpers.apply_field_mappings_and_transformations(
+            dataframe,
+            config.FACILITIES_FIELDS,
+        )
+
+        #: filter out records with invalid coordinates
+        dataframe = dataframe.query("NORTHING > 4000000 & NORTHING < 4800000 & EASTING > 150000 & EASTING < 750000")
 
         self.skid_logger.info("converting to spatial dataframe...")
         sdf = GeoAccessor.from_xy(dataframe, "EASTING", "NORTHING", sr=26912)
@@ -164,26 +174,26 @@ class Skid:
         return sdf
 
     def _get_releases(self) -> pd.DataFrame:
-        release = helpers.SalesForceRecords(
+        releases = helpers.SalesForceRecords(
             self.salesforce_extractor,
             config.RELEASES_API,
             config.RELEASES_FIELDS,
             where_clause=config.RELEASES_QUERY,
         )
-        release.extract_data_from_salesforce()
+        releases.extract_data_from_salesforce()
 
-        return release.df
+        return releases.df
 
     def _get_tanks(self) -> pd.DataFrame:
-        tank = helpers.SalesForceRecords(
+        tanks = helpers.SalesForceRecords(
             self.salesforce_extractor,
             config.TANKS_API,
             config.TANKS_FIELDS,
             where_clause=config.TANKS_QUERY,
         )
-        tank.extract_data_from_salesforce()
+        tanks.extract_data_from_salesforce()
 
-        return tank.df
+        return tanks.df
 
     def _get_compartments(self) -> pd.DataFrame:
         compartment = helpers.SalesForceRecords(
@@ -222,11 +232,9 @@ class Skid:
             )
         else:
             self.skid_logger.info("exporting to table...")
-            csv_file_path = self.tempdir_path / f"{table_name}.csv"
-            sdf.to_csv(csv_file_path, index=False)
-            arcpy.conversion.ExportTable(
-                str(csv_file_path),
-                str(feature_class_path),
+            sdf.spatial.to_table(
+                location=feature_class_path,
+                sanitize_columns=False,
             )
 
         self.skid_logger.info("adding field aliases...")
@@ -261,7 +269,8 @@ class Skid:
 
         layer_item = fgdb_item.publish(
             publish_parameters={
-                "name": table_name if self.secrets.IS_DEV is False else f"{table_name}_dev",
+                # "name": table_name if self.secrets.IS_DEV is False else f"{table_name}_dev",
+                "name": table_name,
                 "layerInfo": {
                     "capabilities": "Query",
                 },
@@ -270,11 +279,11 @@ class Skid:
 
         manager = arcgis.features.FeatureLayerCollection.fromitem(layer_item).manager
         manager.update_definition({"capabilities": "Query,Extract"})
-        if self.secrets.IS_DEV:
-            title += " (test)"
-            layer_item.update({"tags": "test"})
-        else:
-            layer_item.sharing.sharing_level = SharingLevel.EVERYONE
+        # if self.secrets.IS_DEV:
+        #     title += " (test)"
+        #     layer_item.update({"tags": "test"})
+        # else:
+        layer_item.sharing.sharing_level = SharingLevel.EVERYONE
         layer_item.update({"title": title})
 
         print("cleaning up fgdb item...")
@@ -285,6 +294,7 @@ class Skid:
     def update(self):
         start = datetime.now()
 
+        self.skid_logger.info("Updating facilities...")
         facilities_sdf = self._get_facilities()
         facilities_loader = load.ServiceUpdater(
             self.gis,
@@ -293,6 +303,7 @@ class Skid:
         )
         facilities_count = facilities_loader.truncate_and_load(facilities_sdf)
 
+        self.skid_logger.info("Updating releases...")
         releases_df = self._get_releases()
         releases_loader = load.ServiceUpdater(
             self.gis,
@@ -302,6 +313,7 @@ class Skid:
         )
         releases_count = releases_loader.truncate_and_load(releases_df)
 
+        self.skid_logger.info("Updating tanks...")
         tanks_df = self._get_tanks()
         tanks_loader = load.ServiceUpdater(
             self.gis,
@@ -311,6 +323,7 @@ class Skid:
         )
         tanks_count = tanks_loader.truncate_and_load(tanks_df)
 
+        self.skid_logger.info("Updating compartments...")
         compartments_df = self._get_compartments()
         compartments_loader = load.ServiceUpdater(
             self.gis,
@@ -353,6 +366,7 @@ class Skid:
 
         #: NOTE: this method requires arcpy
 
+        self.skid_logger.info("Publishing facilities...")
         facilities_sdf = self._get_facilities()
         self._publish_dataset(
             config.FACILITIES_TABLE_NAME,
@@ -362,6 +376,7 @@ class Skid:
             "layer",
         )
 
+        self.skid_logger.info("Publishing releases...")
         releases_df = self._get_releases()
         self._publish_dataset(
             config.RELEASES_TABLE_NAME,
@@ -371,6 +386,7 @@ class Skid:
             "table",
         )
 
+        self.skid_logger.info("Publishing tanks...")
         tanks_df = self._get_tanks()
         self._publish_dataset(
             config.TANKS_TABLE_NAME,
@@ -380,6 +396,7 @@ class Skid:
             "table",
         )
 
+        self.skid_logger.info("Publishing compartments...")
         compartments_df = self._get_compartments()
         self._publish_dataset(
             config.COMPARTMENTS_TABLE_NAME,
