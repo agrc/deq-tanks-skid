@@ -31,6 +31,59 @@ def flatten(x, child_field):
     return x[child_field]
 
 
+def apply_field_mappings_and_transformations(dataframe, field_configs):
+    """Apply field mappings and transformations"""
+
+    field_mappings = {c.sf_field: c.agol_field for c in field_configs if c.sf_field is not None}
+    dataframe.rename(mapper=field_mappings, axis=1, inplace=True)
+
+    fields_to_drop = []
+    for field_config in field_configs:
+        if field_config.flatten:
+            parts = field_config.sf_field.split(".")
+            parent_field = parts[0]
+            child_field = parts[1]
+            dataframe[field_config.agol_field] = dataframe[parent_field].apply(lambda x: flatten(x, child_field))
+            fields_to_drop.append(parent_field)
+        elif field_config.field_type == config.FieldConfig.static:
+            dataframe[field_config.agol_field] = field_config.static_value
+        elif field_config.field_type == config.FieldConfig.integer:
+            dataframe[field_config.agol_field] = dataframe[field_config.agol_field].apply(convert_to_int)
+        elif field_config.field_type == config.FieldConfig.text:
+            dataframe[field_config.agol_field] = dataframe[field_config.agol_field].apply(str)
+        elif field_config.field_type == config.FieldConfig.composite:
+            dataframe[field_config.agol_field] = dataframe.apply(
+                lambda x: field_config.composite_format.format(**dict(x)), axis=1
+            )
+
+    #: drop these fields after we've processed them since there may be more than one nested field in a single parent field
+    if len(fields_to_drop) > 0:
+        dataframe.drop(columns=fields_to_drop, inplace=True)
+
+    #: ints
+    dataframe = palletjack.transform.DataCleaning.switch_to_nullable_int(
+        dataframe,
+        [c.agol_field for c in field_configs if c.field_type == config.FieldConfig.integer],
+    )
+
+    #: floats
+    dataframe = palletjack.transform.DataCleaning.switch_to_float(
+        dataframe,
+        [c.agol_field for c in field_configs if c.field_type == config.FieldConfig.float],
+    )
+
+    #: dates
+    dataframe = palletjack.transform.DataCleaning.switch_to_datetime(
+        dataframe,
+        [c.agol_field for c in field_configs if c.field_type == c.date],
+    )
+
+    #: reorder columns to match field_configs
+    dataframe = dataframe[[c.agol_field for c in field_configs]]
+
+    return dataframe
+
+
 class SalesForceRecords:
     """A helper class that extracts data from Salesforce for a specific table/api."""
 
@@ -70,52 +123,7 @@ class SalesForceRecords:
 
         self.df.drop(columns=["attributes"], inplace=True)
 
-        field_mappings = {c.sf_field: c.agol_field for c in self.field_configs if c.sf_field is not None}
-        self.df.rename(mapper=field_mappings, axis=1, inplace=True)
-
-        fields_to_drop = []
-        for field_config in self.field_configs:
-            if field_config.flatten:
-                parts = field_config.sf_field.split(".")
-                parent_field = parts[0]
-                child_field = parts[1]
-                self.df[field_config.agol_field] = self.df[parent_field].apply(lambda x: flatten(x, child_field))
-                fields_to_drop.append(parent_field)
-            if field_config.field_type == config.FieldConfig.static:
-                self.df[field_config.agol_field] = field_config.static_value
-            elif field_config.field_type == config.FieldConfig.integer:
-                self.df[field_config.agol_field] = self.df[field_config.agol_field].apply(convert_to_int)
-            elif field_config.field_type == config.FieldConfig.text:
-                self.df[field_config.agol_field] = self.df[field_config.agol_field].apply(str)
-            elif field_config.field_type == config.FieldConfig.composite:
-                self.df[field_config.agol_field] = self.df.apply(
-                    lambda x: field_config.composite_format.format(**dict(x)), axis=1
-                )
-
-        #: drop these fields after we've processed them since there may be more than one nested field in a single parent field
-        if len(fields_to_drop) > 0:
-            self.df.drop(columns=fields_to_drop, inplace=True)
-
-        #: ints
-        self.df = palletjack.transform.DataCleaning.switch_to_nullable_int(
-            self.df,
-            [c.agol_field for c in self.field_configs if c.field_type == config.FieldConfig.integer],
-        )
-
-        #: floats
-        self.df = palletjack.transform.DataCleaning.switch_to_float(
-            self.df,
-            [c.agol_field for c in self.field_configs if c.field_type == config.FieldConfig.float],
-        )
-
-        #: dates
-        self.df = palletjack.transform.DataCleaning.switch_to_datetime(
-            self.df,
-            [c.agol_field for c in self.field_configs if c.field_type == c.date],
-        )
-
-        #: reorder columns to match field_configs
-        self.df = self.df[[c.agol_field for c in self.field_configs]]
+        self.df = apply_field_mappings_and_transformations(self.df, self.field_configs)
 
     def _build_columns_string(self) -> str:
         """Build a string of needed columns for the SOQL query based on field mapping and some custom fields
