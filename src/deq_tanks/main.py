@@ -143,8 +143,10 @@ class Skid:
                     if self.log_name in handler.stream.name:
                         logger.removeHandler(handler)
                         handler.close()
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logging.getLogger(config.SKID_NAME).warning(
+                        "Failed to remove or close log handler %r: %s", handler, exc
+                    )
 
     def _get_facilities(self) -> GeoAccessor:
         self.skid_logger.info("loading tank facility records from Salesforce...")
@@ -269,8 +271,7 @@ class Skid:
 
         layer_item = fgdb_item.publish(
             publish_parameters={
-                # "name": table_name if self.secrets.IS_DEV is False else f"{table_name}_dev",
-                "name": table_name,
+                "name": table_name if self.secrets.IS_DEV is False else f"{table_name}_dev",
                 "layerInfo": {
                     "capabilities": "Query",
                 },
@@ -279,17 +280,16 @@ class Skid:
 
         manager = arcgis.features.FeatureLayerCollection.fromitem(layer_item).manager
         manager.update_definition({"capabilities": "Query,Extract"})
-        # if self.secrets.IS_DEV:
-        #     title += " (test)"
-        #     layer_item.update({"tags": "test"})
-        # else:
-        layer_item.sharing.sharing_level = SharingLevel.EVERYONE
+        if self.secrets.IS_DEV:
+            title += " (test)"
+            layer_item.update({"tags": "test"})
+        else:
+            layer_item.sharing.sharing_level = SharingLevel.EVERYONE
         layer_item.update({"title": title})
-
-        print("cleaning up fgdb item...")
+        self.skid_logger.info("cleaning up fgdb item...")
         fgdb_item.delete(permanent=True)
 
-        print(f"feature layer published: {title} | {layer_item.id}")
+        self.skid_logger.info(f"feature layer published: {title} | {layer_item.id}")
 
     def update(self):
         start = datetime.now()
