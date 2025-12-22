@@ -53,13 +53,13 @@ class TestConvertToInt:
         """Test that None input returns None"""
         assert helpers.convert_to_int(None) is None
 
-    def test_convert_invalid_string_returns_negative_one(self):
-        """Test that invalid string returns -1"""
-        assert helpers.convert_to_int("not a number") == -1
+    def test_convert_invalid_string_returns_none(self):
+        """Test that invalid string returns None"""
+        assert helpers.convert_to_int("not a number") is None
 
-    def test_convert_empty_string_returns_negative_one(self):
-        """Test that empty string returns -1"""
-        assert helpers.convert_to_int("") == -1
+    def test_convert_empty_string_returns_none(self):
+        """Test that empty string returns None"""
+        assert helpers.convert_to_int("") is None
 
 
 class TestApplyFieldMappingsAndTransformations:
@@ -136,7 +136,7 @@ class TestApplyFieldMappingsAndTransformations:
         assert result["number"].dtype == "Int64"
         assert result["number"][0] == 123
         assert result["number"][1] == 456
-        assert result["number"][2] == -1
+        assert result["number"][2] is pd.NA
 
     def test_composite_field_creation(self):
         """Test that composite fields combine multiple fields"""

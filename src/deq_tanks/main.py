@@ -171,8 +171,6 @@ class Skid:
         sdf.spatial.project(web_mercator, "NAD_1983_To_WGS_1984_5")
         sdf.spatial.sr = web_mercator
 
-        sdf = sdf.query("NORTHING > 0 & EASTING > 0")
-
         return sdf
 
     def _get_releases(self) -> pd.DataFrame:
@@ -208,7 +206,7 @@ class Skid:
 
         return compartment.df
 
-    def _publish_dataset(self, table_name, title, fields, sdf, type):
+    def _publish_dataset(self, table_name, title, fields, sdf, dataset_type):
         """A private method intended to be run, on a machine with access to arcpy, prior to this skid being scheduled in the cloud that creates the assets that the skid will write to."""
         import arcpy  # pyright: ignore[reportMissingImports]
 
@@ -226,7 +224,7 @@ class Skid:
                 fgdb_path.name,
             )
 
-        if type == "layer":
+        if dataset_type == "layer":
             self.skid_logger.info("exporting to feature class...")
             sdf.spatial.to_featureclass(
                 location=feature_class_path,
