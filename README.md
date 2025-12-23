@@ -28,3 +28,7 @@ You may test this project by running `deq-tanks-skid`.
 ## Publishing AGOL Items
 
 There is a `skid.publish` method in main that can be used to publish the items for the first time. Note that this method requires `arcpy`.
+
+## Attribution
+
+This project was developed with the assistance of [GitHub Copilot](https://github.com/features/copilot).
