@@ -1,5 +1,6 @@
 # DEQ Tanks Salesforce Palletjack Skid
 
+[![Release Events](https://github.com/agrc/deq-tanks-skid/actions/workflows/release.yml/badge.svg)](https://github.com/agrc/deq-tanks-skid/actions/workflows/release.yml)
 [![Push Events](https://github.com/agrc/deq-tanks-skid/actions/workflows/push.yml/badge.svg)](https://github.com/agrc/skid/actions/workflows/push.yml)
 [![Pull Events](https://github.com/agrc/deq-tanks-skid/actions/workflows/pull_request.yml/badge.svg)](https://github.com/agrc/skid/actions/workflows/pull_request.yml)
 
