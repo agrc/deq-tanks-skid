@@ -118,6 +118,9 @@ class SalesForceRecords:
             query,
         )
 
+        if self.df.empty:
+            raise ValueError(f"No records were returned from Salesforce for API: {self.salesforce_api}")
+
         self.df.drop(columns=["attributes"], inplace=True)
 
         self.df = apply_field_mappings_and_transformations(self.df, self.field_configs)

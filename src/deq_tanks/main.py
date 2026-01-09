@@ -155,6 +155,10 @@ class Skid:
             "services/apexrest/facilities",
             "",
         )
+
+        if dataframe.empty:
+            raise ValueError("No facility records were returned from Salesforce")
+
         dataframe = helpers.apply_field_mappings_and_transformations(
             dataframe,
             config.FACILITIES_FIELDS,
