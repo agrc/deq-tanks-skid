@@ -90,8 +90,8 @@ runs:
           gcloud scheduler jobs delete $i --quiet
         done
         gcloud scheduler jobs create http deq-tanks-schedule \
-          --description="Trigger the deq-tanks-skid bot once a week on saturday evening" \
-          --schedule="0 3 * * 1" \
+          --description="Trigger the deq-tanks-skid bot once a day at 2:12 AM" \
+          --schedule="12 2 * * *" \
           --time-zone=America/Denver \
           --location=us-central1 \
           --uri="https://us-central1-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${{ inputs.project_id }}/jobs/default:run" \
