@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/agrc/deq-tanks-skid/compare/v1.0.0...v1.0.1) (2026-01-09)
+
+
+### Bug Fixes
+
+* add more helpful error messages when no data is returned from salesforce ([22d0c40](https://github.com/agrc/deq-tanks-skid/commit/22d0c4079effc91cb1dd5859958e0ef69b409945))
+* run skid daily instead of weekly ([934d44e](https://github.com/agrc/deq-tanks-skid/commit/934d44e7dba4bcc1dbaf4f01e122edac0d1685d2))
+
 ## 1.0.0 (2026-01-02)
 
 
