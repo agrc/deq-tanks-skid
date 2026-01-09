@@ -242,3 +242,14 @@ class TestSalesForceRecords:
 
         expected_query = "SELECT sf from Table__c"
         mock_loader.get_records.assert_called_once_with("services/data/v60.0/query/", expected_query)
+
+    def test_extract_data_from_salesforce_raises_error_on_empty_dataframe(self, mocker):
+        """Test that ValueError is raised when Salesforce returns no records"""
+        mock_loader = mocker.Mock()
+        mock_loader.get_records.return_value = pd.DataFrame()
+
+        field_configs = [config.FieldConfig("agol", "sf", "Alias", config.FieldConfig.text)]
+        sf_records = helpers.SalesForceRecords(mock_loader, "Table__c", field_configs, None)
+
+        with pytest.raises(ValueError, match="No records were returned from Salesforce for API: Table__c"):
+            sf_records.extract_data_from_salesforce()
