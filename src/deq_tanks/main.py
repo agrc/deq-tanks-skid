@@ -242,13 +242,15 @@ class Skid:
             )
 
         self.skid_logger.info("adding field aliases...")
-        aliases = {field.agol_field: field.alias for field in fields}
+        field_lookup = {field.agol_field: (field.alias, field.field_type) for field in fields}
         for field in arcpy.Describe(str(feature_class_path)).fields:
-            if field.name in aliases:
+            if field.name in field_lookup:
+                alias, field_type = field_lookup[field.name]
                 arcpy.management.AlterField(
                     str(feature_class_path),
                     field.name,
-                    new_field_alias=aliases[field.name],
+                    new_field_alias=alias,
+                    field_length=255 if field_type == config.FieldConfig.text else None,
                 )
 
         #: this removes any locks on the FGDB that cause the zip to fail
