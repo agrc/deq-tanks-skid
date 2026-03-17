@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/agrc/deq-tanks-skid/compare/v1.0.1...v1.0.2) (2026-03-17)
+
+
+### Bug Fixes
+
+* handle UTM coordinates from salesforce that have decimal places ([85b3cf7](https://github.com/agrc/deq-tanks-skid/commit/85b3cf7224c6741092149c09a61cb4ba022fbd78))
+
 ## [1.0.1](https://github.com/agrc/deq-tanks-skid/compare/v1.0.0...v1.0.1) (2026-01-09)
 
 
