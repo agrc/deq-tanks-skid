@@ -61,6 +61,10 @@ class TestConvertToInt:
         """Test that empty string returns None"""
         assert helpers.convert_to_int("") is None
 
+    def test_convert_float_string_rounds_down(self):
+        """Test that float strings are converted to int by rounding down"""
+        assert helpers.convert_to_int("123.99") == 123
+
 
 class TestApplyFieldMappingsAndTransformations:
     """Integration tests for apply_field_mappings_and_transformations"""
