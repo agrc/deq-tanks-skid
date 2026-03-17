@@ -12,8 +12,9 @@ def convert_to_int(s):
     if s is None:
         return None
 
+    # handle float strings by converting to float first and then to int (rounding down)
     try:
-        return int(s)
+        return int(float(s))
     except ValueError:
         return None
 
