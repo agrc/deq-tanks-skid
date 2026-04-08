@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/agrc/deq-tanks-skid/compare/v1.0.2...v1.0.3) (2026-04-08)
+
+
+### Bug Fixes
+
+* add up to three retries ([2b82bcb](https://github.com/agrc/deq-tanks-skid/commit/2b82bcb35414a533e1f98d2af7b895c717979622))
+
 ## [1.0.2](https://github.com/agrc/deq-tanks-skid/compare/v1.0.1...v1.0.2) (2026-03-17)
 
 
